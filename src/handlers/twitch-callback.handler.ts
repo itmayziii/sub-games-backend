@@ -1,7 +1,7 @@
-import { RequestHandler } from "express";
+import { RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
-import AppLocals from "../interfaces/app-locals";
-import User from "../interfaces/user";
+import AppLocals from '../interfaces/app-locals'
+import User from '../interfaces/user'
 import crypto from 'crypto'
 
 const twitchCallbackHandler: RequestHandler = (req, res) => {
@@ -20,14 +20,19 @@ const twitchCallbackHandler: RequestHandler = (req, res) => {
       }
 
       const token = jwt.sign({
+        sub: user.id,
         iss: 'sub-games-companion.com',
         aud: 'sub-games-companion.com',
         roles
-      }, config.JWTSecretKey , { algorithm: 'HS256', expiresIn: 60 * 180 })
+      }, config.JWTSecretKey, { algorithm: 'HS256', expiresIn: 60 * 180 })
       res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 31556952, sameSite: 'strict' })
       res.cookie('accessToken', token, { httpOnly: false, maxAge: 31556952, sameSite: 'strict' })
 
       res.send('twitch callback handler')
+    })
+    .catch(error => {
+      console.error(error)
+      throw error
     })
 }
 

@@ -1,6 +1,6 @@
 import path from 'path'
 import dotenv from 'dotenv'
-import getConfig from "../config";
+import getConfig from '../config'
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 const config = getConfig()

@@ -1,5 +1,5 @@
 export default interface SubGameSession {
-  id: string
+  id: number
   ownerId: string
   isActive: boolean
   userMustVerifyEpic: boolean

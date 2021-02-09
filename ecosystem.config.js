@@ -7,8 +7,8 @@ module.exports = {
     script: 'dist/index.js',
     instances: 1,
     autorestart: true,
-    watch: process.env.NODE_ENV !== 'production' ?
-      [path.resolve(__dirname, 'dist'), path.resolve(__dirname, 'type-defs')]
+    watch: process.env.NODE_ENV !== 'production'
+      ? [path.resolve(__dirname, 'dist'), path.resolve(__dirname, 'type-defs')]
       : false,
     // watch_options: {
     //   'usePolling': true

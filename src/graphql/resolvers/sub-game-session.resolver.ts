@@ -1,14 +1,14 @@
-import {MutationResolvers, Player, QueryResolvers, User} from "../../generated/graphql";
-import SubGameSession from "../../interfaces/sub-game-session";
-import {GraphQLContext} from "../../interfaces/graphql";
-import {ApolloError, AuthenticationError, ForbiddenError} from 'apollo-server-express'
+import { MutationResolvers, Player, QueryResolvers, User } from '../../generated/graphql'
+import SubGameSession from '../../interfaces/sub-game-session'
+import { GraphQLContext } from '../../interfaces/graphql'
+import { ApolloError, AuthenticationError, ForbiddenError } from 'apollo-server-express'
 
-const startSubGameSession: MutationResolvers['startSubGameSession'] = (
+const startSubGameSession: MutationResolvers['startSubGameSession'] = async (
   _,
   { input: { ownerId, maxPlayCount, userMustVerifyEpic = false, maxActivePlayers = 3, onlyAllowSubs = true } },
   { subGameSessionRepository, user }
-  ) => {
-  if (!user) {
+) => {
+  if (user === undefined) {
     throw new AuthenticationError('UNAUTHENTICATED')
   }
 
@@ -16,7 +16,7 @@ const startSubGameSession: MutationResolvers['startSubGameSession'] = (
     throw new ForbiddenError('FORBIDDEN')
   }
 
-  return subGameSessionRepository.startSubGameSession({
+  return await subGameSessionRepository.startSession({
     ownerId,
     maxPlayCount,
     maxActivePlayers,
@@ -26,30 +26,30 @@ const startSubGameSession: MutationResolvers['startSubGameSession'] = (
     .then(subGameSession => ({ subGameSession }))
 }
 
-const getSubGameSession: QueryResolvers['getSubGameSession'] = (
+const getSubGameSession: QueryResolvers['getSubGameSession'] = async (
   _,
   { input: { username } },
   { subGameSessionRepository, user, userRepository }
 ) => {
-  if (!user) {
+  if (user === undefined) {
     throw new AuthenticationError('UNAUTHENTICATED')
   }
 
-  return userRepository.findByUsername(username)
-    .then(matchedUser => {
-      if (!matchedUser) {
+  return await userRepository.findByUsername(username)
+    .then(async matchedUser => {
+      if (matchedUser === undefined) {
         throw new ApolloError('User is not signed up for Sub Games Companion')
       }
 
-      return subGameSessionRepository.findActiveSessionByUser(matchedUser)
+      return await subGameSessionRepository.findActiveSessionByUser(matchedUser)
         .then(subGameSession => ({ subGameSession }))
     })
 }
 
-function owner (subGameSession: SubGameSession, {}: any, { userRepository }: GraphQLContext): Promise<User> {
-  return userRepository.find(subGameSession.ownerId)
+async function owner (subGameSession: SubGameSession, _: unknown, { userRepository }: GraphQLContext): Promise<User> {
+  return await userRepository.find(subGameSession.ownerId)
     .then(owner => {
-      if (!owner) {
+      if (owner === undefined) {
         throw new ApolloError('Owner was not found on sub game')
       }
 
@@ -57,24 +57,59 @@ function owner (subGameSession: SubGameSession, {}: any, { userRepository }: Gra
     })
 }
 
-function queuedPlayers (subGameSession: SubGameSession, {}: any, { subGameSessionRepository }: GraphQLContext): Promise<Player[]> {
-  return subGameSessionRepository.getQueuedPlayersForSession(subGameSession)
-    .then(users => {
-      console.log('users', users)
-      return users.map(user => ({
-        ...user,
-        playCount: 2,
-        allTimePlayCount: 4
-      }))
+async function queuedPlayers (subGameSession: SubGameSession, _: unknown, { subGameSessionRepository }: GraphQLContext): Promise<Player[]> {
+  return await subGameSessionRepository.getQueuedPlayersForSession(subGameSession)
+    .then(users => users.map(user => ({
+      ...user,
+      playCount: 2,
+      allTimePlayCount: 4
+    })))
+}
+
+async function alreadyPlayedUsers (subGameSession: SubGameSession, _: unknown, { subGameSessionRepository }: GraphQLContext): Promise<Player[]> {
+  return await subGameSessionRepository.getPlayerHistoryForSession(subGameSession)
+    .then(users => users.map(user => ({
+      ...user,
+      playCount: 2,
+      allTimePlayCount: 4
+    })))
+}
+
+async function activePlayers (subGameSession: SubGameSession, _: unknown, { subGameSessionRepository }: GraphQLContext): Promise<Player[]> {
+  return await subGameSessionRepository.getActivePlayersForSession(subGameSession)
+    .then(users => users.map(user => ({
+      ...user,
+      playCount: 2,
+      allTimePlayCount: 4
+    })))
+}
+
+const joinSubGameSessionQueue: MutationResolvers['joinSubGameSessionQueue'] = async (
+  _,
+  { input: { userId, sessionId } },
+  { subGameSessionRepository, user, userRepository }
+) => {
+  if (user === undefined) {
+    throw new AuthenticationError('UNAUTHENTICATED')
+  }
+
+  return await Promise.all([userRepository.find(userId), subGameSessionRepository.find(sessionId)])
+    .then(async ([userToJoin, sessionToJoin]) => {
+      if (userToJoin === undefined) {
+        throw new ApolloError('User does not exist')
+      }
+
+      if (sessionToJoin === undefined) {
+        throw new ApolloError('Session does not exist')
+      }
+
+      if (userToJoin.id !== user.id && user.id !== sessionToJoin.ownerId) {
+        throw new ForbiddenError('FORBIDDEN')
+      }
+
+      return await subGameSessionRepository.joinSession(userToJoin, sessionToJoin)
+        .then(() => ({ subGameSession: sessionToJoin }))
     })
-}
-
-function alreadyPlayedUsers () {
-
-}
-
-function activePlayers () {
-
 }
 
 export default {
@@ -82,7 +117,8 @@ export default {
     getSubGameSession
   },
   Mutation: {
-    startSubGameSession
+    startSubGameSession,
+    joinSubGameSessionQueue
   },
   SubGameSession: {
     owner,

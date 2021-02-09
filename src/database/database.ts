@@ -1,10 +1,10 @@
 import knex from 'knex'
-import getConfig from "../config";
-import * as Knex from "knex";
+import getConfig from '../config'
+import * as Knex from 'knex'
 
-let db: Knex
-export default function getDB(): Knex {
-  if (db) return db
+let db: Knex | null = null
+export default function getDB (): Knex {
+  if (db !== null) return db
   const config = getConfig()
 
   db = knex({
@@ -19,6 +19,7 @@ export default function getDB(): Knex {
 
   db.on('query', data => {
     console.log('sql', data.sql)
+    console.log('bindings', data.bindings)
   })
 
   return db

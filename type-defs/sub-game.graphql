@@ -31,3 +31,11 @@ type GetSubGameSessionPayload {
   subGameSession: SubGameSession
 }
 
+input JoinSubGameSessionQueueInput {
+  userId: ID!
+  sessionId: ID!
+}
+
+type JoinSubGameSessionQueuePayload {
+  subGameSession: SubGameSession!
+}

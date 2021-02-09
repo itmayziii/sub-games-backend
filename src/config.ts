@@ -1,11 +1,16 @@
-// TODO replace with ENV var
+interface Config {
+  JWTSecretKey: string
+  twitchClientSecret: string
+  dbHost: string
+  dbPassword: string
+}
 
-export default function getConfig () {
+export default function getConfig (): Config {
   if (
-    !process.env.SGC_JWT_SECRET ||
-    !process.env.SGC_TWITCH_CLIENT_SECRET ||
-    !process.env.SGC_DB_HOST ||
-    !process.env.SGC_DB_PASSWORD
+    process.env.SGC_JWT_SECRET === undefined ||
+    process.env.SGC_TWITCH_CLIENT_SECRET === undefined ||
+    process.env.SGC_DB_HOST === undefined ||
+    process.env.SGC_DB_PASSWORD === undefined
   ) {
     throw new Error('missing config values')
   }

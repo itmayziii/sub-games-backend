@@ -1,7 +1,7 @@
-import * as Knex from "knex";
+import * as Knex from 'knex'
 
-export async function up(knex: Knex): Promise<void> {
-  return knex.schema
+export async function up (knex: Knex): Promise<void> {
+  return await knex.schema
     .createTable('subGameSession', table => {
       table.increments('id').notNullable().primary()
       table.dateTime('created_at', { useTz: false }).notNullable().defaultTo(knex.fn.now())
@@ -39,8 +39,8 @@ export async function up(knex: Knex): Promise<void> {
     })
 }
 
-export async function down(knex: Knex): Promise<void> {
-  return knex.schema
+export async function down (knex: Knex): Promise<void> {
+  return await knex.schema
     .dropTable('userSubGameSessionQueue')
     .dropTable('userSubGameSessionActive')
     .dropTable('userSubGameSessionHistory')

@@ -1,30 +1,28 @@
-import {MutationResolvers} from "../generated/graphql";
+import { MutationResolvers } from '../generated/graphql'
 import { ApolloError } from 'apollo-server-express'
-import crypto from "crypto";
-import jwt from "jsonwebtoken";
+import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
 import subGameSessionResolver from './resolvers/sub-game-session.resolver'
 
-const posts = ['']
-
-const refreshToken: MutationResolvers['refreshToken'] = (_, { input= {} }, { req, user, res, approvedStreamerRepository, userRepository, config }) => {
-  let refreshToken = req.cookies['refreshToken']
-  if (input && input.refreshToken) {
+const refreshToken: MutationResolvers['refreshToken'] = async (_, { input = {} }, { req, user, res, approvedStreamerRepository, userRepository, config }) => {
+  let refreshToken = req.cookies.refreshToken
+  if (input?.refreshToken !== undefined) {
     refreshToken = input.refreshToken
   }
 
-  if (!refreshToken) {
+  if (refreshToken === undefined) {
     throw new ApolloError('Missing refresh token')
   }
 
-  return userRepository.findByRefreshToken(refreshToken)
-    .then(user => {
-      if (!user) {
+  return await userRepository.findByRefreshToken(refreshToken)
+    .then(async user => {
+      if (user === undefined) {
         throw new ApolloError('No user by refresh token')
       }
 
       let roles: string[] = []
       const newRefreshToken = crypto.randomBytes(36).toString('hex')
-      return Promise.all([
+      return await Promise.all([
         approvedStreamerRepository.isStreamerApproved(user.id),
         userRepository.update(user.id, { refreshToken: newRefreshToken })
       ])
@@ -34,6 +32,7 @@ const refreshToken: MutationResolvers['refreshToken'] = (_, { input= {} }, { req
           }
 
           const token = jwt.sign({
+            sub: user.id,
             iss: 'sub-games-companion.com',
             aud: 'sub-games-companion.com',
             roles
@@ -59,6 +58,6 @@ const resolvers = {
   SubGameSession: {
     ...subGameSessionResolver.SubGameSession
   }
-};
+}
 
-export default resolvers;
+export default resolvers

@@ -8,6 +8,7 @@ type Query {
 }
 
 type Mutation {
+  joinSubGameSessionQueue(input: JoinSubGameSessionQueueInput!): JoinSubGameSessionQueuePayload!
   refreshToken(input: RefreshTokenInput): RefreshTokenPayload!
   startSubGameSession(input: StartSubGameSessionInput!): StartSubGameSessionPayload!
 }

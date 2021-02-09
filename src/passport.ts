@@ -2,18 +2,19 @@ import passport from 'passport'
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt'
 import { Strategy as OAuth2Strategy } from 'passport-oauth2'
 import fetch from 'node-fetch'
-import UserRepository from "./repositories/user.repository";
-import User from "./interfaces/user";
-import {Request} from "express";
-import getConfig from "./config";
-import getDB from "./database/database";
+import UserRepository from './repositories/user.repository'
+import User from './interfaces/user'
+import { Request } from 'express'
+import getConfig from './config'
+import getDB from './database/database'
 
 let cachedPassport: passport.PassportStatic | null = null
 export default function getPassport (): passport.PassportStatic {
-  if (cachedPassport) return cachedPassport
+  if (cachedPassport !== null) return cachedPassport
 
   const config = getConfig()
   const db = getDB()
+  const userRepository = UserRepository(db)
 
   passport.use(new JWTStrategy({
     jwtFromRequest: ExtractJwt.fromExtractors([
@@ -23,8 +24,16 @@ export default function getPassport (): passport.PassportStatic {
     secretOrKey: config.JWTSecretKey,
     issuer: 'sub-games-companion.com',
     audience: 'sub-games-companion.com'
-  }, (_, done) => {
-    return done(null, { id: '123', firstName: 'Tommy' })
+  }, (payload, done) => {
+    userRepository.find(payload.sub)
+      .then(user => {
+        if (user === undefined) {
+          return done(new Error('Invalid User'), null)
+        }
+
+        done(null, user)
+      })
+      .catch(error => done(error, null))
   }))
 
   passport.use('oauth2-twitch', new OAuth2Strategy({
@@ -42,20 +51,18 @@ export default function getPassport (): passport.PassportStatic {
         Authorization: `Bearer ${accessToken}`
       }
     })
-      .then(res => res.json())
-      .then(profile => {
+      .then(async res => await res.json())
+      .then(async profile => {
         const userData: User = {
           id: profile.sub,
           username: profile.preferred_username,
-          refreshToken: '123',
           twitchAccessToken: accessToken,
           twitchRefreshToken: refreshToken,
           twitchExpires: profile.exp,
           twitchIat: profile.iat
         }
 
-        const userRepository = UserRepository(db)
-        return userRepository.createOrUpdate(userData.id, userData)
+        return await userRepository.createOrUpdate(userData.id, userData)
       })
       .then(user => cb(null, user))
       .catch(err => cb(err, null))
@@ -65,11 +72,10 @@ export default function getPassport (): passport.PassportStatic {
   return cachedPassport
 }
 
-function jwtCookieExtractor (req: Request) {
-  let token = null
-  if (req && req.cookies) {
-    token = req.cookies['accessToken']
+function jwtCookieExtractor (req: Request): string | null {
+  if (req.cookies?.accessToken === undefined) {
+    return null
   }
 
-  return token
+  return req.cookies.accessToken
 }

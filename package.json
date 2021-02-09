@@ -9,7 +9,9 @@
     "build": "tsc --project tsconfig.json",
     "watch": "npm run build -- --watch",
     "clean": "rm -rf dist/*",
-    "generate:graphql:types": "graphql-codegen --config codegen.yml"
+    "generate:graphql:types": "graphql-codegen --config codegen.yml",
+    "lint": "eslint --ext .js,.ts src ecosystem.config.js",
+    "lint:fix": "eslint --fix --ext .js,.ts src ecosystem.config.js"
   },
   "repository": {
     "type": "git",
@@ -36,9 +38,15 @@
     "@types/jsonwebtoken": "~8.5.0",
     "@types/passport-jwt": "~3.0.4",
     "@types/passport-oauth2": "~1.4.10",
+    "@typescript-eslint/eslint-plugin": "~4.15.0",
     "apollo-server-express": "~2.19.2",
     "cookie-parser": "~1.4.5",
     "dotenv": "~8.2.0",
+    "eslint": "~7.19.0",
+    "eslint-config-standard-with-typescript": "~20.0.0",
+    "eslint-plugin-import": "~2.22.1",
+    "eslint-plugin-node": "~11.1.0",
+    "eslint-plugin-promise": "~4.2.1",
     "express": "~4.17.1",
     "graphql": "~15.5.0",
     "graphql-tools": "~7.0.2",

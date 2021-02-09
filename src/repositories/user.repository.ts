@@ -1,32 +1,40 @@
-import User from "../interfaces/user";
+import User from '../interfaces/user'
 import * as Knex from 'knex'
 
-export default function UserRepository(db: Knex) {
-  const userRepository = {
-    find(id: string): Promise<User | undefined> {
-      return db.first().from('user').where({ id })
+interface UserRepo {
+  find: (id: string) => Promise<User | undefined>
+  createOrUpdate: (id: string, user: Partial<User>) => Promise<User>
+  update: (id: string, user: Partial<User>) => Promise<User>
+  findByRefreshToken: (refreshToken: string) => Promise<User | undefined>
+  findByUsername: (username: string) => Promise<User | undefined>
+}
+
+export default function UserRepository (db: Knex): UserRepo {
+  const userRepository: UserRepo = {
+    async find (id) {
+      return await db.first().from('user').where({ id })
     },
-    createOrUpdate(id: string, user: Partial<User>): Promise<User> {
-      return userRepository.find(id)
-        .then((matchedUser): Promise<User[]> => {
+    async createOrUpdate (id, user) {
+      return await userRepository.find(id)
+        .then(async (matchedUser) => {
           const userTable = db.table('user')
-          if (matchedUser) {
-            return userTable.update(user).where({ id }).returning<User[]>('*')
+          if (matchedUser === undefined) {
+            return await userTable.insert(user).returning<User[]>('*')
           }
 
-          return userTable.insert(user).returning<User[]>('*')
+          return await userTable.update(user).where({ id }).returning<User[]>('*')
         })
         .then(result => result[0])
     },
-    update(id: string, user: Partial<User>): Promise<User> {
-      return db('user').update(user).returning<User[]>('*')
+    async update (id, user) {
+      return await db('user').update(user).where({ id }).returning<User[]>('*')
         .then(result => result[0])
     },
-    findByRefreshToken(refreshToken: string): Promise<User | undefined> {
-      return db.first<User>().from('user').where({refreshToken})
+    async findByRefreshToken (refreshToken) {
+      return await db.first<User>().from('user').where({ refreshToken })
     },
-    findByUsername(username: string): Promise<User | undefined> {
-      return db<User>('user').first().where({ username })
+    async findByUsername (username) {
+      return await db<User>('user').first().where({ username })
     }
   }
 

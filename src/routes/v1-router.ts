@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import getPassport from "../passport";
-import twitchCallbackHandler from "../handlers/twitch-callback.handler";
+import getPassport from '../passport'
+import twitchCallbackHandler from '../handlers/twitch-callback.handler'
 
 export default function getV1Router (): Router {
   const v1Router = Router()

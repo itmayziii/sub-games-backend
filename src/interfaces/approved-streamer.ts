@@ -1,3 +1,3 @@
 export default interface ApprovedStreamer {
-  id: string
+  id: number
 }
