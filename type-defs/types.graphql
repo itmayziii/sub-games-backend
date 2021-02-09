@@ -1,0 +1,13 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  getSubGameSession(input: GetSubGameSessionInput!): GetSubGameSessionPayload!
+}
+
+type Mutation {
+  refreshToken(input: RefreshTokenInput): RefreshTokenPayload!
+  startSubGameSession(input: StartSubGameSessionInput!): StartSubGameSessionPayload!
+}

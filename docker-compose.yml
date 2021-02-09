@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  backend:
+    image: node:14
+    ports:
+      - "4000:4000"
+    depends_on:
+      - database
+    volumes:
+      - ./:/home/node/app
+    command: "npm run start"
+    working_dir: "/home/node/app"
+
+  database:
+    image: postgres:13-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - database-volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=subGamesCompanionApp
+      - POSTGRES_DB=subGamesCompanion
+
+volumes:
+  database-volume:

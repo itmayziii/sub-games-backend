@@ -1,0 +1,16 @@
+interface UserInterface {
+  id: ID!
+  username: String!
+}
+
+type User implements UserInterface {
+  id: ID!
+  username: String!
+}
+
+type Player implements UserInterface {
+  id: ID!
+  username: String!
+  playCount: Int!
+  allTimePlayCount: Int!
+}

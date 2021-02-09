@@ -1,0 +1,33 @@
+type SubGameSession {
+  id: ID!
+  owner: User!
+  isActive: Boolean!
+  userMustVerifyEpic: Boolean!
+  maxPlayCount: Int
+  maxActivePlayers: Int!
+  queuedPlayers: [Player!]!
+  alreadyPlayedUsers: [Player!]!
+  activePlayers: [Player!]!
+  onlyAllowSubs: Boolean!
+}
+
+input StartSubGameSessionInput {
+  ownerId: ID!
+  userMustVerifyEpic: Boolean
+  maxPlayCount: Int
+  maxActivePlayers: Int
+  onlyAllowSubs: Boolean
+}
+
+type StartSubGameSessionPayload {
+  subGameSession: SubGameSession!
+}
+
+input GetSubGameSessionInput {
+  username: ID!
+}
+
+type GetSubGameSessionPayload {
+  subGameSession: SubGameSession
+}
+
