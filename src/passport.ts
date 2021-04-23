@@ -5,15 +5,16 @@ import fetch from 'node-fetch'
 import UserRepository from './repositories/user.repository'
 import User from './interfaces/user'
 import { Request } from 'express'
-import getConfig from './config'
-import getDB from './database/database'
+import Config from './config'
+import DB from './database/database'
+import Logger from './logger'
 
-let cachedPassport: passport.PassportStatic | null = null
+let cachedPassport: passport.PassportStatic
 export default function getPassport (): passport.PassportStatic {
-  if (cachedPassport !== null) return cachedPassport
+  if (cachedPassport !== undefined) return cachedPassport
 
-  const config = getConfig()
-  const db = getDB()
+  const config = Config()
+  const db = DB(Logger(config.logLevel))
   const userRepository = UserRepository(db)
 
   passport.use(new JWTStrategy({
@@ -28,12 +29,12 @@ export default function getPassport (): passport.PassportStatic {
     userRepository.find(payload.sub)
       .then(user => {
         if (user === undefined) {
-          return done(new Error('Invalid User'), null)
+          return done(null, false)
         }
 
         done(null, user)
       })
-      .catch(error => done(error, null))
+      .catch(error => done(error, false))
   }))
 
   passport.use('oauth2-twitch', new OAuth2Strategy({
@@ -41,7 +42,7 @@ export default function getPassport (): passport.PassportStatic {
     tokenURL: 'https://id.twitch.tv/oauth2/token',
     clientID: '22jvgu8f0zdvnmo44ihw9frcaolxgc',
     clientSecret: config.twitchClientSecret,
-    callbackURL: 'http://localhost:4000/v1/oauth2/twitch/callback',
+    callbackURL: config.twitchCallbackURL,
     // https://dev.twitch.tv/docs/authentication#scopes
     scope: ['moderation:read', 'channel:read:subscriptions', 'openid']
   }, (accessToken: string, refreshToken: string, profile: {}, cb: Function) => {
@@ -65,7 +66,7 @@ export default function getPassport (): passport.PassportStatic {
         return await userRepository.createOrUpdate(userData.id, userData)
       })
       .then(user => cb(null, user))
-      .catch(err => cb(err, null))
+      .catch(err => cb(err, false))
   }))
 
   cachedPassport = passport
@@ -73,7 +74,7 @@ export default function getPassport (): passport.PassportStatic {
 }
 
 function jwtCookieExtractor (req: Request): string | null {
-  if (req.cookies?.accessToken === undefined) {
+  if (req.cookies.accessToken === undefined) {
     return null
   }
 

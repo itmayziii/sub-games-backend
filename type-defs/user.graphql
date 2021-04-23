@@ -1,16 +1,31 @@
-interface UserInterface {
+interface UserInterface implements Node {
   id: ID!
   username: String!
 }
 
-type User implements UserInterface {
-  id: ID!
-  username: String!
-}
-
-type Player implements UserInterface {
+interface PlayerInterface implements UserInterface & Node {
   id: ID!
   username: String!
   playCount: Int!
   allTimePlayCount: Int!
+}
+
+type User implements UserInterface & Node {
+  id: ID!
+  username: String!
+}
+
+type Player implements UserInterface & PlayerInterface & Node {
+  id: ID!
+  username: String!
+  playCount: Int!
+  allTimePlayCount: Int!
+}
+
+type QueuedPlayer implements UserInterface & PlayerInterface & Node {
+  id: ID!
+  username: String!
+  playCount: Int!
+  allTimePlayCount: Int!
+  order: Int!
 }

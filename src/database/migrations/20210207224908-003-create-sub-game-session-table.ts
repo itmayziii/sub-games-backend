@@ -7,11 +7,11 @@ export async function up (knex: Knex): Promise<void> {
       table.dateTime('created_at', { useTz: false }).notNullable().defaultTo(knex.fn.now())
       table.dateTime('updated_at', { useTz: false }).notNullable().defaultTo(knex.fn.now())
       table.string('ownerId', 20).notNullable().references('id').inTable('user')
-      table.boolean('isActive').notNullable()
+      table.boolean('isActive').notNullable().defaultTo(true)
       table.boolean('userMustVerifyEpic').notNullable().defaultTo(false)
       table.integer('maxPlayCount').unsigned().nullable().defaultTo(1)
       table.integer('maxActivePlayers').unsigned().notNullable().defaultTo(3)
-      table.boolean('onlyAllowSubs').notNullable().defaultTo(true)
+      table.boolean('isSubOnly').notNullable().defaultTo(true)
     })
     .createTable('userSubGameSessionQueue', table => {
       table.increments('id').notNullable().primary()

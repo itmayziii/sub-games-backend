@@ -1,14 +1,14 @@
-type SubGameSession {
+type SubGameSession implements Node {
   id: ID!
   owner: User!
   isActive: Boolean!
   userMustVerifyEpic: Boolean!
   maxPlayCount: Int
   maxActivePlayers: Int!
-  queuedPlayers: [Player!]!
+  queuedPlayers: [QueuedPlayer!]!
   alreadyPlayedUsers: [Player!]!
   activePlayers: [Player!]!
-  onlyAllowSubs: Boolean!
+  isSubOnly: Boolean!
 }
 
 input StartSubGameSessionInput {
@@ -16,18 +16,35 @@ input StartSubGameSessionInput {
   userMustVerifyEpic: Boolean
   maxPlayCount: Int
   maxActivePlayers: Int
-  onlyAllowSubs: Boolean
+  isSubOnly: Boolean
 }
 
 type StartSubGameSessionPayload {
   subGameSession: SubGameSession!
 }
 
-input GetSubGameSessionInput {
+input ActiveSubGameSessionByUsernameInput {
+  """This "username" input is case sensitive and refers to a users Twitch "dipslay_name" not their "login" name. https://dev.twitch.tv/docs/api/reference#get-users"""
   username: ID!
 }
 
-type GetSubGameSessionPayload {
+type ActiveSubGameSessionByUsernamePayload {
+  subGameSession: SubGameSession
+}
+
+input SubGameSessionByIdInput {
+  id: ID!
+}
+
+type SubGameSessionByIdPayload {
+  subGameSession: SubGameSession
+}
+
+input ActiveSubGameSessionByUserIdInput {
+  id: ID!
+}
+
+type ActiveSubGameSessionByUserIdPayload {
   subGameSession: SubGameSession
 }
 
@@ -37,5 +54,15 @@ input JoinSubGameSessionQueueInput {
 }
 
 type JoinSubGameSessionQueuePayload {
+  subGameSession: SubGameSession!
+}
+
+input MovePlayerQueueOrderInput {
+  userId: ID!
+  order: Int!
+  sessionId: ID!
+}
+
+type MovePlayerQueueOrderPayload {
   subGameSession: SubGameSession!
 }

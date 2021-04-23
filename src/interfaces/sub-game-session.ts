@@ -5,5 +5,5 @@ export default interface SubGameSession {
   userMustVerifyEpic: boolean
   maxPlayCount?: number
   maxActivePlayers: number
-  onlyAllowSubs: boolean
+  isSubOnly: boolean
 }

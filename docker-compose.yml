@@ -8,7 +8,7 @@ services:
       - database
     volumes:
       - ./:/home/node/app
-    command: "npm run start"
+    command: "npm run start:server"
     working_dir: "/home/node/app"
 
   database:

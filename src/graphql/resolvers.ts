@@ -3,6 +3,7 @@ import { ApolloError } from 'apollo-server-express'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import subGameSessionResolver from './resolvers/sub-game-session.resolver'
+import nodeResolver from './resolvers/node.resolver'
 
 const refreshToken: MutationResolvers['refreshToken'] = async (_, { input = {} }, { req, user, res, approvedStreamerRepository, userRepository, config }) => {
   let refreshToken = req.cookies.refreshToken
@@ -49,11 +50,15 @@ const refreshToken: MutationResolvers['refreshToken'] = async (_, { input = {} }
 
 const resolvers = {
   Query: {
+    ...nodeResolver.Query,
     ...subGameSessionResolver.Query
   },
   Mutation: {
     refreshToken,
     ...subGameSessionResolver.Mutation
+  },
+  Node: {
+    ...nodeResolver.Node
   },
   SubGameSession: {
     ...subGameSessionResolver.SubGameSession

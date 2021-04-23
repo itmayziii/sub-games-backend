@@ -6,6 +6,8 @@ node_modules/
 
 # Compiled Code
 dist/
+dist-tests/
+coverage/
 
 # Environment Specific
 .env

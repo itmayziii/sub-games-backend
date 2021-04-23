@@ -1,19 +1,18 @@
 import express from 'express'
 import AppLocals from './interfaces/app-locals'
 import UserRepository from './repositories/user.repository'
-import ApprovedStreamerRepository from './repositories/approvedStreamer.repository'
+import ApprovedStreamerRepository from './repositories/approved-streamer.repository'
 import cookieParser from 'cookie-parser'
 import getV1Router from './routes/v1-router'
-import SubGameSessionRepository from './repositories/subGameSession.repository'
-import getConfig from './config'
-import getDB from './database/database'
+import SubGameSessionRepository from './repositories/sub-game-session.repository'
+import Config from './config'
 import getPassport from './passport'
+import * as Knex from 'knex'
 
-export default function makeApp (): express.Application {
+export default function makeWebServer (db: Knex): express.Application {
   const app = express()
-  const db = getDB()
   const appLocals: AppLocals = {
-    config: getConfig(),
+    config: Config(),
     db,
     userRepository: UserRepository(db),
     approvedStreamerRepository: ApprovedStreamerRepository(db),
@@ -27,8 +26,8 @@ export default function makeApp (): express.Application {
 
   app.use('/graphql', function authWithoutError (req, res, next) {
     passport.authenticate('jwt', (error, user) => {
-      if (error !== undefined) return next(error)
-      req.user = user
+      if (error !== null) return next(error)
+      req.user = (user === null || user === undefined || user === false) ? undefined : user
       next()
     })(req, res, next)
   })

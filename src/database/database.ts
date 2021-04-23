@@ -1,11 +1,12 @@
 import knex from 'knex'
-import getConfig from '../config'
+import Config from '../config'
 import * as Knex from 'knex'
+import Logger from '../interfaces/logger'
 
-let db: Knex | null = null
-export default function getDB (): Knex {
-  if (db !== null) return db
-  const config = getConfig()
+let db: Knex
+export default function DB (logger: Logger): Knex {
+  if (db !== undefined) return db
+  const config = Config()
 
   db = knex({
     client: 'pg',
@@ -17,9 +18,9 @@ export default function getDB (): Knex {
     }
   })
 
-  db.on('query', data => {
-    console.log('sql', data.sql)
-    console.log('bindings', data.bindings)
+  db.on('query', (data: Knex.Sql) => {
+    logger.info(`SQL - ${data.sql}`)
+    logger.info(`SQL Bindings - ${data.bindings.toString()}`)
   })
 
   return db

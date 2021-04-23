@@ -2,19 +2,23 @@ import * as Knex from 'knex'
 import SubGameSession from '../interfaces/sub-game-session'
 import { MakeMaybe } from '../generated/graphql'
 import User from '../interfaces/user'
+import SubGameSessionQueue from '../interfaces/sub-game-session-queue'
 
-type StartSubGameSessionInput = MakeMaybe<Omit<SubGameSession, 'isActive' | 'id'>, 'maxActivePlayers' | 'maxPlayCount' | 'userMustVerifyEpic' | 'onlyAllowSubs'>
+type StartSubGameSessionInput = MakeMaybe<Omit<SubGameSession, 'isActive' | 'id'>, 'maxActivePlayers' | 'maxPlayCount' | 'userMustVerifyEpic' | 'isSubOnly'>
+type QueuedUser = User & { order: number }
 
 interface SubGameSessionRepo {
   startSession: (subGameSession: StartSubGameSessionInput) => Promise<SubGameSession>
   hasActiveSession: (ownerId: string) => Promise<Boolean>
   find: (id: number) => Promise<SubGameSession | undefined>
-  joinSession: (user: User, session: SubGameSession) => Promise<true>
+  joinSession: (user: User, session: SubGameSession) => Promise<void>
   isUserPartOfSession: (user: User, session: SubGameSession) => Promise<boolean>
   findActiveSessionByUser: (user: User) => Promise<SubGameSession | undefined>
-  getQueuedPlayersForSession: (session: SubGameSession) => Promise<User[]>
+  getQueuedPlayersForSession: (session: SubGameSession) => Promise<QueuedUser[]>
   getPlayerHistoryForSession: (session: SubGameSession) => Promise<User[]>
   getActivePlayersForSession: (session: SubGameSession) => Promise<User[]>
+  moveUserInSessionQueue: (session: SubGameSession, user: User, order: number) => Promise<void>
+  getSessionQueueForUser: (session: SubGameSession, user: User) => Promise<SubGameSessionQueue | undefined>
 }
 
 export default function SubGameSessionRepository (db: Knex): SubGameSessionRepo {
@@ -54,8 +58,13 @@ export default function SubGameSessionRepository (db: Knex): SubGameSessionRepo 
             throw new Error('User is already part of session')
           }
 
-          return await db.transaction(async trx => {
-            return await trx<{ order: number }>('userSubGameSessionQueue').select('order').forUpdate().orderBy('order', 'desc').limit(1).first()
+          await db.transaction(async trx => {
+            return await trx<{ order: number }>('userSubGameSessionQueue')
+              .select('order')
+              .forUpdate()
+              .orderBy('order', 'desc')
+              .limit(1)
+              .first()
               .then(lastOrderRow => {
                 let order = 0
                 if (lastOrderRow !== undefined) {
@@ -68,7 +77,6 @@ export default function SubGameSessionRepository (db: Knex): SubGameSessionRepo 
               .catch(trx.rollback)
           })
         })
-        .then(() => true)
     },
     async isUserPartOfSession (user, session) {
       if (!session.isActive) return await Promise.resolve(false)
@@ -86,7 +94,7 @@ export default function SubGameSessionRepository (db: Knex): SubGameSessionRepo 
     async getQueuedPlayersForSession (session) {
       if (!session.isActive) throw new Error('No queue for inactive sessions')
 
-      return await db.select<User[]>('user.*')
+      return await db.select<QueuedUser[]>('user.*', 'userSubGameSessionQueue.order')
         .from('userSubGameSessionQueue')
         .where({ subGameSessionId: session.id })
         .join('user', 'user.id', 'userSubGameSessionQueue.userId')
@@ -106,6 +114,35 @@ export default function SubGameSessionRepository (db: Knex): SubGameSessionRepo 
         .where({ subGameSessionId: session.id })
         .join('user', 'user.id', 'userSubGameSessionActive.userId')
         .then(results => results)
+    },
+    async getSessionQueueForUser (session, user) {
+      return await db<SubGameSessionQueue>('userSubGameSessionQueue')
+        .where({ subGameSessionId: session.id, userId: user.id })
+        .first()
+        .then(result => result)
+    },
+    async moveUserInSessionQueue (session, user, order) {
+      await repository.getSessionQueueForUser(session, user)
+        .then(async sessionQueue => {
+          if (sessionQueue === undefined) {
+            throw new Error('User is not part of session')
+          }
+
+          if (sessionQueue.order === order) {
+            return
+          }
+
+          return await db.transaction(async trx => {
+            return await trx('userSubGameSessionQueue').increment('order', 1).where('order', '>=', order)
+              .then(async () => {
+                return await trx('userSubGameSessionQueue')
+                  .update({ order })
+                  .where({ subGameSessionId: session.id, userId: user.id })
+              })
+              .then(trx.commit)
+              .catch(trx.rollback)
+          })
+        })
     }
   }
 

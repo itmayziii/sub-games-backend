@@ -4,11 +4,16 @@ schema {
 }
 
 type Query {
-  getSubGameSession(input: GetSubGameSessionInput!): GetSubGameSessionPayload!
+  # https://relay.dev/graphql/objectidentification.htm#sec-Node-Interface
+  node(id: ID!): Node
+  activeSubGameSessionByUsername(input: ActiveSubGameSessionByUsernameInput!): ActiveSubGameSessionByUsernamePayload!
+  activeSubGameSessionByUserId(input: ActiveSubGameSessionByUserIdInput!): ActiveSubGameSessionByUserIdPayload!
+  subGameSessionById(input: SubGameSessionByIdInput!): SubGameSessionByIdPayload!
 }
 
 type Mutation {
   joinSubGameSessionQueue(input: JoinSubGameSessionQueueInput!): JoinSubGameSessionQueuePayload!
   refreshToken(input: RefreshTokenInput): RefreshTokenPayload!
   startSubGameSession(input: StartSubGameSessionInput!): StartSubGameSessionPayload!
+  movePlayerQueueOrder(input: MovePlayerQueueOrderInput!): MovePlayerQueueOrderPayload!
 }

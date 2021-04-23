@@ -4,14 +4,23 @@
   "description": "Twitch sub games companion to help streamers manage sub games",
   "main": "dist/index.js",
   "scripts": {
-    "start": "pm2-runtime start ecosystem.config.js",
+    "start": "docker-compose up",
+    "start:server": "pm2-runtime start ecosystem.config.js",
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.json",
+    "prebuild:test": "npm run clean:test",
+    "build:test": "tsc --project tsconfig-test.json",
     "watch": "npm run build -- --watch",
     "clean": "rm -rf dist/*",
-    "generate:graphql:types": "graphql-codegen --config codegen.yml",
-    "lint": "eslint --ext .js,.ts src ecosystem.config.js",
-    "lint:fix": "eslint --fix --ext .js,.ts src ecosystem.config.js"
+    "clean:test": "rm -rf dist-tests/*",
+    "generate:graphql:types": "graphql-codegen --config codegen.yml && eslint --fix --ext .js,.ts src/generated",
+    "lint": "eslint --ext .js,.ts src ecosystem.config.js jest.config.js",
+    "lint:fix": "eslint --fix --ext .js,.ts src ecosystem.config.js jest.config.js",
+    "test": "npm run test:unit && npm run test:integration",
+    "pretest:unit": "npm run build:test",
+    "test:unit": "NODE_ENV=test jest --config jest.config.js",
+    "pretest:integration": "npm run build:test",
+    "test:integration": "NODE_ENV=test jest --config jest-integration.config.js"
   },
   "repository": {
     "type": "git",
@@ -35,11 +44,14 @@
     "@graphql-codegen/typescript-resolvers": "~1.18.1",
     "@tsconfig/node14": "~1.0.0",
     "@types/cookie-parser": "~1.4.2",
+    "@types/graphql-relay": "~0.6.0",
+    "@types/jest": "~26.0.22",
     "@types/jsonwebtoken": "~8.5.0",
     "@types/passport-jwt": "~3.0.4",
     "@types/passport-oauth2": "~1.4.10",
     "@typescript-eslint/eslint-plugin": "~4.15.0",
-    "apollo-server-express": "~2.19.2",
+    "apollo-server-express": "~2.22.1",
+    "apollo-server-testing": "~2.22.1",
     "cookie-parser": "~1.4.5",
     "dotenv": "~8.2.0",
     "eslint": "~7.19.0",
@@ -49,7 +61,9 @@
     "eslint-plugin-promise": "~4.2.1",
     "express": "~4.17.1",
     "graphql": "~15.5.0",
+    "graphql-relay": "~0.6.0",
     "graphql-tools": "~7.0.2",
+    "jest": "~26.6.3",
     "jsonwebtoken": "~8.5.1",
     "knex": "~0.21.17",
     "node-fetch": "~2.6.1",
@@ -59,6 +73,7 @@
     "pg": "~8.5.1",
     "pm2": "~4.5.4",
     "typescript": "~4.1.3",
-    "utility-types": "~3.10.0"
+    "utility-types": "~3.10.0",
+    "winston": "~3.3.3"
   }
 }
