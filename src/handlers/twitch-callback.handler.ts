@@ -25,8 +25,9 @@ const twitchCallbackHandler: RequestHandler = (req, res) => {
         aud: 'sub-games-companion.com',
         roles
       }, config.JWTSecretKey, { algorithm: 'HS256', expiresIn: 60 * 180 })
-      res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 31556952, sameSite: 'strict' })
-      res.cookie('accessToken', token, { httpOnly: false, maxAge: 31556952, sameSite: 'strict' })
+      const oneYearInMilliseconds = 31540000000
+      res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: oneYearInMilliseconds, sameSite: 'strict' })
+      res.cookie('accessToken', token, { httpOnly: false, maxAge: oneYearInMilliseconds, sameSite: 'strict' })
 
       res.send('twitch callback handler')
     })

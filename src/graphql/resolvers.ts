@@ -38,8 +38,9 @@ const refreshToken: MutationResolvers['refreshToken'] = async (_, { input = {} }
             aud: 'sub-games-companion.com',
             roles
           }, config.JWTSecretKey, { algorithm: 'HS256', expiresIn: 60 * 180 })
-          res.cookie('refreshToken', newRefreshToken, { httpOnly: true, maxAge: 31556952, sameSite: 'strict' })
-          res.cookie('accessToken', token, { httpOnly: false, maxAge: 31556952, sameSite: 'strict' })
+          const oneYearInMilliseconds = 31540000000
+          res.cookie('refreshToken', newRefreshToken, { httpOnly: true, maxAge: oneYearInMilliseconds, sameSite: 'strict' })
+          res.cookie('accessToken', token, { httpOnly: false, maxAge: oneYearInMilliseconds, sameSite: 'strict' })
 
           return {
             success: true
