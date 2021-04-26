@@ -5,7 +5,7 @@
  * https://spec.graphql.org/June2018/#sec-Errors
  */
 
-import { ApolloError, AuthenticationError, ForbiddenError, UserInputError } from 'apollo-server-express'
+import { AuthenticationError, ForbiddenError, UserInputError } from 'apollo-server-express'
 
 /**
  * When a user is missing or has invalid credentials.
@@ -39,7 +39,7 @@ export class GraphQLNotSignedUpError extends UserInputError {
  * just return null when we can not find data.
  */
 export class GraphQLUserInputError extends UserInputError {
-  constructor (invalidArgument: { resourceType: string, resourceId: string, argumentName: string, reason: string }) {
+  constructor (invalidArgument: { resourceType: string, resourceId?: string, argumentName: string, reason: string }) {
     super('Invalid argument value(s)', { invalidArgument })
   }
 }

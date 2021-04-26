@@ -3,7 +3,7 @@ export default interface SubGameSession {
   ownerId: string
   isActive: boolean
   userMustVerifyEpic: boolean
-  maxPlayCount?: number
+  maxPlayCount: number | null
   maxActivePlayers: number
   isSubOnly: boolean
 }

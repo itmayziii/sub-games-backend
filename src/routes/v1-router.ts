@@ -1,10 +1,13 @@
 import { Router } from 'express'
 import getPassport from '../passport'
 import twitchCallbackHandler from '../handlers/twitch-callback.handler'
+import Knex from 'knex'
+import UserRepository from '../interfaces/repositories/user.repository'
+import Configuration from '../interfaces/config'
 
-export default function getV1Router (): Router {
+export default function getV1Router (db: Knex, config: Configuration, userRepository: UserRepository): Router {
   const v1Router = Router()
-  const passport = getPassport()
+  const passport = getPassport(db, config, userRepository)
 
   const oAuth2TwitchAuth = passport.authenticate('oauth2-twitch', { session: false })
   const JWTAuth = passport.authenticate('jwt', {

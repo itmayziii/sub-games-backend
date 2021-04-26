@@ -1,16 +1,9 @@
-import User from '../interfaces/user'
+import User from '../interfaces/models/user'
 import * as Knex from 'knex'
+import UserRepository from '../interfaces/repositories/user.repository'
 
-interface UserRepo {
-  find: (id: string) => Promise<User | undefined>
-  createOrUpdate: (id: string, user: Partial<User>) => Promise<User>
-  update: (id: string, user: Partial<User>) => Promise<User>
-  findByRefreshToken: (refreshToken: string) => Promise<User | undefined>
-  findByUsername: (username: string) => Promise<User | undefined>
-}
-
-export default function UserRepository (db: Knex): UserRepo {
-  const userRepository: UserRepo = {
+export default function KnexUserRepository (db: Knex): UserRepository {
+  const userRepository: UserRepository = {
     async find (id) {
       return await db.first().from('user').where({ id })
     },

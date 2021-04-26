@@ -1,5 +1,5 @@
 import { MutationResolvers, Player, QueryResolvers, User } from '../../generated/graphql'
-import SubGameSession from '../../interfaces/sub-game-session'
+import SubGameSession from '../../interfaces/models/sub-game-session'
 import { GraphQLContext } from '../../interfaces/graphql'
 import { ApolloError, ForbiddenError } from 'apollo-server-express'
 import { fromGlobalId, toGlobalId } from 'graphql-relay'
@@ -25,7 +25,7 @@ const startSubGameSession: MutationResolvers['startSubGameSession'] = async (
 
   return await subGameSessionRepository.startSession({
     ownerId,
-    maxPlayCount,
+    maxPlayCount: maxPlayCount === undefined ? null : maxPlayCount,
     maxActivePlayers,
     userMustVerifyEpic,
     isSubOnly

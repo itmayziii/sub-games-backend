@@ -1,0 +1,43 @@
+type Session implements Node {
+  id: ID!
+  """Last sub game session which may be be active or inactive."""
+  subGameSession: SubGameSession
+  """Currently active Twitch stream."""
+  twitchSession: TwitchSession
+}
+
+type SessionEdge {
+  node: Session!
+  """
+  This cursor is not spec compliant - https://relay.dev/graphql/connections.htm#sec-Cursor. Instead this cursor will be
+  the same for every edge and can be used to retrieve the next set of results. This difference from the spec is due to
+  the limitations of the Twitch API.
+  """
+  cursor: String
+}
+
+type SessionsConnection {
+  edges: [SessionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type TwitchSession {
+  gameName: String!
+  username: String!
+  viewerCount: Int!
+  thumbnailURL: String!
+}
+
+# https://relay.dev/graphql/connections.htm#sec-Arguments
+input SessionsByUserIdInput {
+  id: ID!
+
+  # https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+  first: Int
+  after: String
+
+  # https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+  # Twitch API does not allow for backward pagination so neither do we for this connection.
+  # last: Int
+  # before: String
+}

@@ -1,18 +1,22 @@
-import User from './user'
+import User from './models/user'
 import * as Knex from 'knex'
-import UserRepository from '../repositories/user.repository'
-import ApprovedStreamerRepository from '../repositories/approved-streamer.repository'
 import { Request, Response } from 'express'
-import SubGameSessionRepository from '../repositories/sub-game-session.repository'
-import Config from '../config'
+import LoggerInterface from './logger'
+import UserRepository from './repositories/user.repository'
+import SubGameSessionRepository from './repositories/sub-game-session.repository'
+import ApprovedStreamerRepository from './repositories/approved-streamer.repository'
+import TwitchService from './services/twitch.service'
+import Configuration from './config'
 
 export interface GraphQLContext {
   user?: User
-  config: ReturnType<typeof Config>
+  config: Configuration
   db: Knex
-  userRepository: ReturnType<typeof UserRepository>
-  approvedStreamerRepository: ReturnType<typeof ApprovedStreamerRepository>
-  subGameSessionRepository: ReturnType<typeof SubGameSessionRepository>
+  userRepository: UserRepository
+  approvedStreamerRepository: ApprovedStreamerRepository
+  subGameSessionRepository: SubGameSessionRepository
+  logger: LoggerInterface
+  TwitchService: (user: User, clientId: string, clientSecret: string, logger: LoggerInterface) => TwitchService
   req: Request
   res: Response
 }

@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
 import AppLocals from '../interfaces/app-locals'
-import User from '../interfaces/user'
+import User from '../interfaces/models/user'
 import crypto from 'crypto'
 
 const twitchCallbackHandler: RequestHandler = (req, res) => {

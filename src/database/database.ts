@@ -12,9 +12,9 @@ export default function DB (logger: Logger): Knex {
     client: 'pg',
     connection: {
       host: config.dbHost,
-      user: 'subGamesCompanionApp',
+      user: config.dbUser,
       password: config.dbPassword,
-      database: 'subGamesCompanion'
+      database: config.dbDatabase
     }
   })
 

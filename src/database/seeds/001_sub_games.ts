@@ -16,8 +16,7 @@ async function insertUsers (knex: Knex): Promise<void> {
       refreshToken: null,
       twitchAccessToken: '123',
       twitchRefreshToken: '456',
-      twitchExpires: 500,
-      twitchIat: 3
+      lastTwitchValidation: null
     },
     {
       id: 2,
@@ -25,8 +24,7 @@ async function insertUsers (knex: Knex): Promise<void> {
       refreshToken: null,
       twitchAccessToken: '123',
       twitchRefreshToken: '456',
-      twitchExpires: 500,
-      twitchIat: 3
+      lastTwitchValidation: null
     }
   ])
 }

@@ -1,38 +1,44 @@
 import express from 'express'
 import AppLocals from './interfaces/app-locals'
-import UserRepository from './repositories/user.repository'
-import ApprovedStreamerRepository from './repositories/approved-streamer.repository'
+import KnexUserRepository from './repositories/knex-user.repository'
+import KnexApprovedStreamerRepository from './repositories/knex-approved-streamer.repository'
 import cookieParser from 'cookie-parser'
 import getV1Router from './routes/v1-router'
-import SubGameSessionRepository from './repositories/sub-game-session.repository'
+import KnexSubGameSessionRepository from './repositories/knex-sub-game-session.repository'
 import Config from './config'
 import getPassport from './passport'
 import * as Knex from 'knex'
+import cors from 'cors'
+import authWithoutErrorMiddleware from './middleware/auth-without-error.middleware'
+import TwitchService from './services/api-twitch.service'
+import validateTwitchTokenMiddleware from './middleware/validate-twitch-token.middleware'
+import WinstonLogger from './winston-logger'
 
 export default function makeWebServer (db: Knex): express.Application {
   const app = express()
+  const config = Config()
+  const userRepository = KnexUserRepository(db)
   const appLocals: AppLocals = {
     config: Config(),
     db,
-    userRepository: UserRepository(db),
-    approvedStreamerRepository: ApprovedStreamerRepository(db),
-    subGameSessionRepository: SubGameSessionRepository(db)
+    userRepository,
+    approvedStreamerRepository: KnexApprovedStreamerRepository(db),
+    subGameSessionRepository: KnexSubGameSessionRepository(db),
+    TwitchService,
+    logger: WinstonLogger(config.logLevel)
   }
   app.locals = appLocals
   app.use(cookieParser())
+  app.use(cors({
+    origin: ['http://localhost:3000'],
+    credentials: true
+  }))
 
-  const passport = getPassport()
+  const passport = getPassport(db, config, userRepository)
   app.use(passport.initialize())
 
-  app.use('/graphql', function authWithoutError (req, res, next) {
-    passport.authenticate('jwt', (error, user) => {
-      if (error !== null) return next(error)
-      req.user = (user === null || user === undefined || user === false) ? undefined : user
-      next()
-    })(req, res, next)
-  })
-
-  app.use('/v1', getV1Router())
+  app.use('/graphql', authWithoutErrorMiddleware, validateTwitchTokenMiddleware)
+  app.use('/v1', getV1Router(db, config, userRepository))
 
   return app
 }

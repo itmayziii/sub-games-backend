@@ -5,13 +5,13 @@ import path from 'path'
 import makeGraphQLServer from './graphql-server'
 import DB from './database/database'
 import context from './graphql/context'
-import Logger from './logger'
+import WinstonLogger from './winston-logger'
 import Config from './config'
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') })
 
 const config = Config()
-const logger = Logger(config.logLevel)
+const logger = WinstonLogger(config.logLevel)
 
 loadTypeDefs()
   .then(typeDefs => {

@@ -9,12 +9,12 @@ import { gql } from 'apollo-server-express'
 import { DocumentNode } from 'graphql'
 import testingContext from './context'
 import { Request, Response } from 'express'
-import UserRepository from '../repositories/user.repository'
-import SubGameSessionRepository from '../repositories/sub-game-session.repository'
-import Logger from '../logger'
+import KnexUserRepository from '../repositories/knex-user.repository'
+import KnexSubGameSessionRepository from '../repositories/knex-sub-game-session.repository'
+import WinstonLogger from '../winston-logger'
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
-const logger = Logger('error', true)
+const logger = WinstonLogger('error', true)
 const db = DB(logger)
 const app = makeWebServer(db)
 
@@ -75,7 +75,7 @@ test('graphQL query - activeSubGameSessionByUsername - errors if the requested s
     app: {
       locals: {
         db,
-        userRepository: UserRepository(db)
+        userRepository: KnexUserRepository(db)
       }
     }
   } as any as Request
@@ -110,8 +110,8 @@ test('graphQL query - activeSubGameSessionByUsername - returns null data if the 
     app: {
       locals: {
         db,
-        userRepository: UserRepository(db),
-        subGameSessionRepository: SubGameSessionRepository(db)
+        userRepository: KnexUserRepository(db),
+        subGameSessionRepository: KnexSubGameSessionRepository(db)
       }
     }
   } as any as Request
@@ -143,8 +143,8 @@ test('graphQL query - activeSubGameSessionByUsername - returns the sub game sess
     app: {
       locals: {
         db,
-        userRepository: UserRepository(db),
-        subGameSessionRepository: SubGameSessionRepository(db)
+        userRepository: KnexUserRepository(db),
+        subGameSessionRepository: KnexSubGameSessionRepository(db)
       }
     }
   } as any as Request
@@ -203,7 +203,7 @@ test('graphQL query - activeSubGameSessionByUsername - returns the sub game sess
     })
 })
 
-test('graphQL query - activeSubGameSessionById - does not allow unauthenticated users', async () => {
+test('graphQL query - activeSubGameSessionByUserId - does not allow unauthenticated users', async () => {
   const request: Request = {
     app: {
       locals: {
@@ -217,7 +217,7 @@ test('graphQL query - activeSubGameSessionById - does not allow unauthenticated 
   return await testClient.query({
     query: gql`
       query SubGameSession {
-        activeSubGameSessionById(input: { id: "U3ViR2FtZVNlc3Npb246MQ==" }) {
+        activeSubGameSessionByUserId(input: { id: "U3ViR2FtZVNlc3Npb246MQ==" }) {
           subGameSession {
             id
           }

@@ -16,7 +16,13 @@ export default function makeGraphQLServer (app: express.Application, typeDefs: D
     playground: true
   })
 
-  server.applyMiddleware({ app })
+  server.applyMiddleware({
+    app,
+    cors: {
+      origin: ['http://localhost:3000'],
+      credentials: true
+    }
+  })
 
   return server
 }

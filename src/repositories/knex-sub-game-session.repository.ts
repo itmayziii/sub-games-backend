@@ -1,28 +1,11 @@
 import * as Knex from 'knex'
-import SubGameSession from '../interfaces/sub-game-session'
-import { MakeMaybe } from '../generated/graphql'
-import User from '../interfaces/user'
-import SubGameSessionQueue from '../interfaces/sub-game-session-queue'
+import SubGameSession from '../interfaces/models/sub-game-session'
+import User from '../interfaces/models/user'
+import SubGameSessionQueue from '../interfaces/models/sub-game-session-queue'
+import SubGameSessionRepository, { QueuedUser } from '../interfaces/repositories/sub-game-session.repository'
 
-type StartSubGameSessionInput = MakeMaybe<Omit<SubGameSession, 'isActive' | 'id'>, 'maxActivePlayers' | 'maxPlayCount' | 'userMustVerifyEpic' | 'isSubOnly'>
-type QueuedUser = User & { order: number }
-
-interface SubGameSessionRepo {
-  startSession: (subGameSession: StartSubGameSessionInput) => Promise<SubGameSession>
-  hasActiveSession: (ownerId: string) => Promise<Boolean>
-  find: (id: number) => Promise<SubGameSession | undefined>
-  joinSession: (user: User, session: SubGameSession) => Promise<void>
-  isUserPartOfSession: (user: User, session: SubGameSession) => Promise<boolean>
-  findActiveSessionByUser: (user: User) => Promise<SubGameSession | undefined>
-  getQueuedPlayersForSession: (session: SubGameSession) => Promise<QueuedUser[]>
-  getPlayerHistoryForSession: (session: SubGameSession) => Promise<User[]>
-  getActivePlayersForSession: (session: SubGameSession) => Promise<User[]>
-  moveUserInSessionQueue: (session: SubGameSession, user: User, order: number) => Promise<void>
-  getSessionQueueForUser: (session: SubGameSession, user: User) => Promise<SubGameSessionQueue | undefined>
-}
-
-export default function SubGameSessionRepository (db: Knex): SubGameSessionRepo {
-  const repository: SubGameSessionRepo = {
+export default function KnexSubGameSessionRepository (db: Knex): SubGameSessionRepository {
+  const repository: SubGameSessionRepository = {
     async startSession (subGameSession) {
       return await repository.hasActiveSession(subGameSession.ownerId)
         .then(async hasActiveSession => {
@@ -143,6 +126,17 @@ export default function SubGameSessionRepository (db: Knex): SubGameSessionRepo 
               .catch(trx.rollback)
           })
         })
+    },
+    async getLatestSessionForUsers (userIds) {
+      return await db.from('subGameSession').innerJoin(
+        db('subGameSession').select('ownerId').max('created_at', { as: 'maxCreatedAt' }).groupBy('ownerId').as('sgs2'),
+        function () {
+          this.on(function () {
+            this.on('subGameSession.ownerId', '=', 'sgs2.ownerId')
+            this.on('subGameSession.created_at', '=', 'sgs2.maxCreatedAt')
+          })
+        }
+      ).whereIn('subGameSession.ownerId', userIds)
     }
   }
 

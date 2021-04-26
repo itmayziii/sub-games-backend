@@ -1,12 +1,8 @@
 import * as Knex from 'knex'
-import ApprovedStreamer from '../interfaces/approved-streamer'
+import ApprovedStreamer from '../interfaces/models/approved-streamer'
+import ApprovedStreamerRepository from '../interfaces/repositories/approved-streamer.repository'
 
-interface ApprovedStreamerRepo {
-  find: (id: number) => Promise<ApprovedStreamer | undefined>
-  isStreamerApproved: (userId: string) => Promise<boolean>
-}
-
-export default function ApprovedStreamerRepository (db: Knex): ApprovedStreamerRepo {
+export default function KnexApprovedStreamerRepository (db: Knex): ApprovedStreamerRepository {
   return {
     async find (id) {
       return await db.first<ApprovedStreamer>().from('approvedStreamer').where({ id })

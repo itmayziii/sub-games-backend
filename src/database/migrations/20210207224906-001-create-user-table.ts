@@ -6,10 +6,9 @@ export async function up (knex: Knex): Promise<void> {
       table.string('id', 20).notNullable().primary() // Twitch API refers to the ID as a string not an integer
       table.string('username', 255).notNullable().unique()
       table.string('refreshToken', 255).nullable().unique()
-      table.string('twitchAccessToken', 255)
-      table.string('twitchRefreshToken', 255)
-      table.integer('twitchExpires').unsigned()
-      table.integer('twitchIat').unsigned()
+      table.string('twitchAccessToken', 255).nullable()
+      table.string('twitchRefreshToken', 255).nullable()
+      table.dateTime('lastTwitchValidation').nullable()
     })
 }
 

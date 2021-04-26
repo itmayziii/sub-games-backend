@@ -1,15 +1,9 @@
 import Logger from './interfaces/logger'
+import Configuration from './interfaces/config'
 
-interface Configuration {
-  JWTSecretKey: string
-  twitchClientSecret: string
-  twitchCallbackURL: string
-  dbHost: string
-  dbPassword: string
-  logLevel: keyof Logger
-}
-
+let config: Configuration
 export default function Config (): Configuration {
+  if (config !== undefined) return config
   if (
     process.env.SGC_JWT_SECRET === undefined ||
     process.env.SGC_TWITCH_CLIENT_SECRET === undefined ||
@@ -21,12 +15,16 @@ export default function Config (): Configuration {
     throw new Error('invalid config values')
   }
 
-  return {
+  config = {
     JWTSecretKey: process.env.SGC_JWT_SECRET,
+    twitchClientId: '22jvgu8f0zdvnmo44ihw9frcaolxgc',
     twitchClientSecret: process.env.SGC_TWITCH_CLIENT_SECRET,
     twitchCallbackURL: process.env.SGC_TWITCH_CALLBACK_URL,
     dbHost: process.env.SGC_DB_HOST,
+    dbUser: 'subGamesCompanionApp',
     dbPassword: process.env.SGC_DB_PASSWORD,
+    dbDatabase: 'subGamesCompanion',
     logLevel: process.env.SGC_LOG_LEVEL as keyof Logger ?? 'info'
   }
+  return config
 }

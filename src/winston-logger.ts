@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from 'winston'
-import LoggerInterface from './interfaces/logger'
+import Logger from './interfaces/logger'
 
 const gcpFormat = format((info) => {
   // https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry#LogSeverity
@@ -10,12 +10,12 @@ const gcpFormat = format((info) => {
     critical: 'CRITICAL'
   }
 
-  info.severity = levelToGCPSeverity[info.level as keyof LoggerInterface]
+  info.severity = levelToGCPSeverity[info.level as keyof Logger]
 
   return info
 })
 
-export default function Logger (level: keyof LoggerInterface, silent = false): LoggerInterface {
+export default function WinstonLogger (level: keyof Logger, silent = false): Logger {
   // Logging to the console because it is the infrastructures job to capture these logs and process them.
   const consoleTransport = new transports.Console()
   return createLogger({
@@ -38,5 +38,5 @@ export default function Logger (level: keyof LoggerInterface, silent = false): L
     ),
     exitOnError: false,
     silent
-  }) as unknown as LoggerInterface // Winston does not provide a generic for custom log levels so we are just casting it.
+  }) as unknown as Logger // Winston does not provide a generic for custom log levels so we are just casting it.
 }

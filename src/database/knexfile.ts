@@ -9,9 +9,9 @@ export default {
   client: 'pg',
   connection: {
     host: config.dbHost,
-    user: 'subGamesCompanionApp',
+    user: config.dbUser,
     password: config.dbPassword,
-    database: 'subGamesCompanion'
+    database: config.dbDatabase
   },
   migrations: {
     directory: path.resolve(__dirname, 'migrations'),
