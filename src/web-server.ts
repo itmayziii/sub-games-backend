@@ -13,6 +13,9 @@ import authWithoutErrorMiddleware from './middleware/auth-without-error.middlewa
 import TwitchService from './services/api-twitch.service'
 import validateTwitchTokenMiddleware from './middleware/validate-twitch-token.middleware'
 import WinstonLogger from './winston-logger'
+import ResponseLocals from './interfaces/response-locals'
+import UserByIdLoader from './loaders/user.loader'
+import DataLoader from 'dataloader'
 
 export default function makeWebServer (db: Knex): express.Application {
   const app = express()
@@ -28,6 +31,7 @@ export default function makeWebServer (db: Knex): express.Application {
     logger: WinstonLogger(config.logLevel)
   }
   app.locals = appLocals
+
   app.use(cookieParser())
   app.use(cors({
     origin: ['http://localhost:3000'],
@@ -36,6 +40,16 @@ export default function makeWebServer (db: Knex): express.Application {
 
   const passport = getPassport(db, config, userRepository)
   app.use(passport.initialize())
+
+  app.use((_, response, next) => {
+    const responseLocals: ResponseLocals = {
+      loaders: {
+        userByIdLoader: new DataLoader(UserByIdLoader(userRepository))
+      }
+    }
+    response.locals = responseLocals
+    next()
+  })
 
   app.use('/graphql', authWithoutErrorMiddleware, validateTwitchTokenMiddleware)
   app.use('/v1', getV1Router(db, config, userRepository))

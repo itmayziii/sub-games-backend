@@ -5,7 +5,10 @@ import UserRepository from '../interfaces/repositories/user.repository'
 export default function KnexUserRepository (db: Knex): UserRepository {
   const userRepository: UserRepository = {
     async find (id) {
-      return await db.first().from('user').where({ id })
+      return await db('user').first().where({ id })
+    },
+    async findMany (ids) {
+      return await db('user').whereIn('id', ids)
     },
     async createOrUpdate (id, user) {
       return await userRepository.find(id)
@@ -24,7 +27,7 @@ export default function KnexUserRepository (db: Knex): UserRepository {
         .then(result => result[0])
     },
     async findByRefreshToken (refreshToken) {
-      return await db.first<User>().from('user').where({ refreshToken })
+      return await db('user').first<User>().where({ refreshToken })
     },
     async findByUsername (username) {
       return await db<User>('user').first().where({ username })

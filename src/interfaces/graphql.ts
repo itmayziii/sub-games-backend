@@ -7,6 +7,7 @@ import SubGameSessionRepository from './repositories/sub-game-session.repository
 import ApprovedStreamerRepository from './repositories/approved-streamer.repository'
 import TwitchService from './services/twitch.service'
 import Configuration from './config'
+import DataLoader from 'dataloader'
 
 export interface GraphQLContext {
   user?: User
@@ -17,6 +18,9 @@ export interface GraphQLContext {
   subGameSessionRepository: SubGameSessionRepository
   logger: LoggerInterface
   TwitchService: (user: User, clientId: string, clientSecret: string, logger: LoggerInterface) => TwitchService
+  loaders: {
+    userByIdLoader: DataLoader<string, User | null>
+  }
   req: Request
   res: Response
 }

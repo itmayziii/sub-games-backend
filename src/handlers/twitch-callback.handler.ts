@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import AppLocals from '../interfaces/app-locals'
 import User from '../interfaces/models/user'
 import crypto from 'crypto'
+import { toGlobalId } from 'graphql-relay'
 
 const twitchCallbackHandler: RequestHandler = (req, res) => {
   const { approvedStreamerRepository, userRepository, config } = req.app.locals as AppLocals
@@ -20,7 +21,7 @@ const twitchCallbackHandler: RequestHandler = (req, res) => {
       }
 
       const token = jwt.sign({
-        sub: user.id,
+        sub: toGlobalId('User', user.id),
         iss: 'sub-games-companion.com',
         aud: 'sub-games-companion.com',
         roles

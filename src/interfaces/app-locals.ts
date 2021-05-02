@@ -7,6 +7,7 @@ import TwitchService from '../interfaces/services/twitch.service'
 import User from './models/user'
 import Configuration from './config'
 
+// http://expressjs.com/en/api.html#app.locals
 export default interface AppLocals {
   config: Configuration
   db: Knex

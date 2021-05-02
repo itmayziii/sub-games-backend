@@ -47,9 +47,12 @@ const sessionsByUserId: QueryResolvers['sessionsByUserId'] = async (
             id: toGlobalId('Session', stream.user_id),
             twitchSession: {
               gameName: stream.game_name,
-              username: stream.user_name,
               viewerCount: stream.viewer_count,
-              thumbnailURL: stream.thumbnail_url
+              thumbnailURL: stream.thumbnail_url,
+              user: {
+                id: toGlobalId('User', stream.user_id),
+                username: stream.user_name
+              }
             },
             subGameSession: find(propEq('id', stream.user_id))(subGameSessions)
           },

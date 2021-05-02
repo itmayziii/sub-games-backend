@@ -2,6 +2,7 @@ import { MutationResolvers } from '../../generated/graphql'
 import { ApolloError } from 'apollo-server-express'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
+import { toGlobalId } from 'graphql-relay'
 
 const refreshToken: MutationResolvers['refreshToken'] = async (
   _,
@@ -40,7 +41,7 @@ const refreshToken: MutationResolvers['refreshToken'] = async (
           }
 
           const token = jwt.sign({
-            sub: user.id,
+            sub: toGlobalId('User', user.id),
             iss: 'sub-games-companion.com',
             aud: 'sub-games-companion.com',
             roles

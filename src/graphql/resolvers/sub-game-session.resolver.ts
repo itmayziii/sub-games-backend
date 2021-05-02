@@ -103,10 +103,10 @@ const subGameSessionById: QueryResolvers['subGameSessionById'] = async (
     })
 }
 
-async function owner (subGameSession: SubGameSession, _: unknown, { userRepository }: GraphQLContext): Promise<User> {
-  return await userRepository.find(subGameSession.ownerId)
+async function owner (subGameSession: SubGameSession, _: unknown, { loaders }: GraphQLContext): Promise<User> {
+  return await loaders.userByIdLoader.load(subGameSession.ownerId)
     .then(owner => {
-      if (owner === undefined) {
+      if (owner === null) {
         throw new ApolloError('Owner was not found on sub game')
       }
 

@@ -3,7 +3,7 @@ type Session implements Node {
   """Last sub game session which may be be active or inactive."""
   subGameSession: SubGameSession
   """Currently active Twitch stream."""
-  twitchSession: TwitchSession
+  twitchSession: TwitchSession!
 }
 
 type SessionEdge {
@@ -19,13 +19,6 @@ type SessionEdge {
 type SessionsConnection {
   edges: [SessionEdge!]!
   pageInfo: PageInfo!
-}
-
-type TwitchSession {
-  gameName: String!
-  username: String!
-  viewerCount: Int!
-  thumbnailURL: String!
 }
 
 # https://relay.dev/graphql/connections.htm#sec-Arguments

@@ -35,7 +35,9 @@ export interface Node {
 export type Session = Node & {
   __typename?: 'Session'
   id: Scalars['ID']
+  /** Last sub game session which may be be active or inactive. */
   subGameSession?: Maybe<SubGameSession>
+  /** Currently active Twitch stream. */
   twitchSession: TwitchSession
 }
 
@@ -54,14 +56,6 @@ export interface SessionsConnection {
   __typename?: 'SessionsConnection'
   edges: SessionEdge[]
   pageInfo: PageInfo
-}
-
-export interface TwitchSession {
-  __typename?: 'TwitchSession'
-  gameName: Scalars['String']
-  username: Scalars['String']
-  viewerCount: Scalars['Int']
-  thumbnailURL: Scalars['String']
 }
 
 /** https://relay.dev/graphql/connections.htm#sec-Arguments */
@@ -146,6 +140,14 @@ export interface MovePlayerQueueOrderInput {
 export interface MovePlayerQueueOrderPayload {
   __typename?: 'MovePlayerQueueOrderPayload'
   subGameSession: SubGameSession
+}
+
+export interface TwitchSession {
+  __typename?: 'TwitchSession'
+  user: User
+  gameName: Scalars['String']
+  viewerCount: Scalars['Int']
+  thumbnailURL: Scalars['String']
 }
 
 export interface Query {
@@ -333,9 +335,8 @@ export type ResolversTypes = ResolversObject<{
   SessionEdge: ResolverTypeWrapper<DeepPartial<SessionEdge>>
   String: ResolverTypeWrapper<DeepPartial<Scalars['String']>>
   SessionsConnection: ResolverTypeWrapper<DeepPartial<SessionsConnection>>
-  TwitchSession: ResolverTypeWrapper<DeepPartial<TwitchSession>>
-  Int: ResolverTypeWrapper<DeepPartial<Scalars['Int']>>
   SessionsByUserIdInput: ResolverTypeWrapper<DeepPartial<SessionsByUserIdInput>>
+  Int: ResolverTypeWrapper<DeepPartial<Scalars['Int']>>
   SubGameSession: ResolverTypeWrapper<DeepPartial<SubGameSession>>
   StartSubGameSessionInput: ResolverTypeWrapper<DeepPartial<StartSubGameSessionInput>>
   StartSubGameSessionPayload: ResolverTypeWrapper<DeepPartial<StartSubGameSessionPayload>>
@@ -349,6 +350,7 @@ export type ResolversTypes = ResolversObject<{
   JoinSubGameSessionQueuePayload: ResolverTypeWrapper<DeepPartial<JoinSubGameSessionQueuePayload>>
   MovePlayerQueueOrderInput: ResolverTypeWrapper<DeepPartial<MovePlayerQueueOrderInput>>
   MovePlayerQueueOrderPayload: ResolverTypeWrapper<DeepPartial<MovePlayerQueueOrderPayload>>
+  TwitchSession: ResolverTypeWrapper<DeepPartial<TwitchSession>>
   Query: ResolverTypeWrapper<{}>
   Mutation: ResolverTypeWrapper<{}>
   PageInfo: ResolverTypeWrapper<DeepPartial<PageInfo>>
@@ -370,9 +372,8 @@ export type ResolversParentTypes = ResolversObject<{
   SessionEdge: DeepPartial<SessionEdge>
   String: DeepPartial<Scalars['String']>
   SessionsConnection: DeepPartial<SessionsConnection>
-  TwitchSession: DeepPartial<TwitchSession>
-  Int: DeepPartial<Scalars['Int']>
   SessionsByUserIdInput: DeepPartial<SessionsByUserIdInput>
+  Int: DeepPartial<Scalars['Int']>
   SubGameSession: DeepPartial<SubGameSession>
   StartSubGameSessionInput: DeepPartial<StartSubGameSessionInput>
   StartSubGameSessionPayload: DeepPartial<StartSubGameSessionPayload>
@@ -386,6 +387,7 @@ export type ResolversParentTypes = ResolversObject<{
   JoinSubGameSessionQueuePayload: DeepPartial<JoinSubGameSessionQueuePayload>
   MovePlayerQueueOrderInput: DeepPartial<MovePlayerQueueOrderInput>
   MovePlayerQueueOrderPayload: DeepPartial<MovePlayerQueueOrderPayload>
+  TwitchSession: DeepPartial<TwitchSession>
   Query: {}
   Mutation: {}
   PageInfo: DeepPartial<PageInfo>
@@ -422,14 +424,6 @@ export type SessionEdgeResolvers<ContextType = GraphQLContext, ParentType extend
 export type SessionsConnectionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SessionsConnection'] = ResolversParentTypes['SessionsConnection']> = ResolversObject<{
   edges?: Resolver<Array<ResolversTypes['SessionEdge']>, ParentType, ContextType>
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
-}>
-
-export type TwitchSessionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TwitchSession'] = ResolversParentTypes['TwitchSession']> = ResolversObject<{
-  gameName?: Resolver<ResolversTypes['String'], ParentType, ContextType>
-  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>
-  viewerCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>
-  thumbnailURL?: Resolver<ResolversTypes['String'], ParentType, ContextType>
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
 }>
 
@@ -474,6 +468,14 @@ export type JoinSubGameSessionQueuePayloadResolvers<ContextType = GraphQLContext
 
 export type MovePlayerQueueOrderPayloadResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MovePlayerQueueOrderPayload'] = ResolversParentTypes['MovePlayerQueueOrderPayload']> = ResolversObject<{
   subGameSession?: Resolver<ResolversTypes['SubGameSession'], ParentType, ContextType>
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
+}>
+
+export type TwitchSessionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TwitchSession'] = ResolversParentTypes['TwitchSession']> = ResolversObject<{
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>
+  gameName?: Resolver<ResolversTypes['String'], ParentType, ContextType>
+  viewerCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>
+  thumbnailURL?: Resolver<ResolversTypes['String'], ParentType, ContextType>
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>
 }>
 
@@ -543,7 +545,6 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Session?: SessionResolvers<ContextType>
   SessionEdge?: SessionEdgeResolvers<ContextType>
   SessionsConnection?: SessionsConnectionResolvers<ContextType>
-  TwitchSession?: TwitchSessionResolvers<ContextType>
   SubGameSession?: SubGameSessionResolvers<ContextType>
   StartSubGameSessionPayload?: StartSubGameSessionPayloadResolvers<ContextType>
   ActiveSubGameSessionByUsernamePayload?: ActiveSubGameSessionByUsernamePayloadResolvers<ContextType>
@@ -551,6 +552,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ActiveSubGameSessionByUserIdPayload?: ActiveSubGameSessionByUserIdPayloadResolvers<ContextType>
   JoinSubGameSessionQueuePayload?: JoinSubGameSessionQueuePayloadResolvers<ContextType>
   MovePlayerQueueOrderPayload?: MovePlayerQueueOrderPayloadResolvers<ContextType>
+  TwitchSession?: TwitchSessionResolvers<ContextType>
   Query?: QueryResolvers<ContextType>
   Mutation?: MutationResolvers<ContextType>
   PageInfo?: PageInfoResolvers<ContextType>

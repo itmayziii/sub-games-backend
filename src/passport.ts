@@ -6,6 +6,7 @@ import { Request } from 'express'
 import * as Knex from 'knex'
 import UserRepository from './interfaces/repositories/user.repository'
 import Configuration from './interfaces/config'
+import { fromGlobalId } from 'graphql-relay'
 
 let cachedPassport: passport.PassportStatic
 export default function getPassport (db: Knex, config: Configuration, userRepository: UserRepository): passport.PassportStatic {
@@ -19,7 +20,8 @@ export default function getPassport (db: Knex, config: Configuration, userReposi
     issuer: 'sub-games-companion.com',
     audience: 'sub-games-companion.com'
   }, (payload, done) => {
-    userRepository.find(payload.sub)
+    const { id: userId } = fromGlobalId(payload.sub)
+    userRepository.find(userId)
       .then(user => {
         if (user === undefined) {
           return done(null, false)
