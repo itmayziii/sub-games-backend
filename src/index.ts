@@ -12,10 +12,12 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') })
 
 const config = Config()
 const logger = WinstonLogger(config.logLevel)
+const db = DB(logger)
 
-loadTypeDefs()
-  .then(typeDefs => {
-    const db = DB(logger)
+Promise.all([loadTypeDefs(), db.migrate.latest({
+  directory: path.resolve(__dirname, 'database/migrations')
+})])
+  .then(([typeDefs]) => {
     const webServer = makeWebServer(db)
     const graphQLServer = makeGraphQLServer(webServer, typeDefs, context)
 

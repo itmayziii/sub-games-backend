@@ -20,7 +20,9 @@ export default function DB (logger: Logger): Knex {
 
   db.on('query', (data: Knex.Sql) => {
     logger.info(`SQL - ${data.sql}`)
-    logger.info(`SQL Bindings - ${data.bindings.toString()}`)
+    if (data.bindings !== undefined) {
+      logger.info(`SQL Bindings - ${data.bindings.toString()}`)
+    }
   })
 
   return db

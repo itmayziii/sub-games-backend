@@ -4,5 +4,6 @@ export default interface User {
   refreshToken: string | null
   twitchAccessToken: string | null
   twitchRefreshToken: string | null
+  redirectURL: string | null
   lastTwitchValidation: Date | null
 }
