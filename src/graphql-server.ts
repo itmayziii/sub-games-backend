@@ -19,7 +19,7 @@ export default function makeGraphQLServer (app: express.Application, typeDefs: D
   server.applyMiddleware({
     app,
     cors: {
-      origin: ['http://localhost:3000'],
+      origin: ['http://localhost:3000', 'https://app.sub-games.com'],
       credentials: true
     }
   })

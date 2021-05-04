@@ -14,11 +14,11 @@ import Configuration from './interfaces/config'
 import { fromGlobalId, toGlobalId } from 'graphql-relay'
 import crypto from 'crypto'
 
-function StateStore (db: Knex): Oauth2StateStore {
+function StateStore (db: Knex, config: Configuration): Oauth2StateStore {
   return {
     store (request: Request, metaOrCallback: StateStoreStoreCallback | Metadata, callback?: StateStoreStoreCallback) {
       const redirectUrlQuery = request.query.redirect_url
-      let redirectURL = 'http://localhost:3000/sessions'
+      let redirectURL = `${config.webAppURL}/sessions`
       if (typeof redirectUrlQuery === 'string') {
         redirectURL = redirectUrlQuery
       }
@@ -88,8 +88,8 @@ export default function getPassport (db: Knex, config: Configuration, userReposi
       jwtCookieExtractor
     ]),
     secretOrKey: config.JWTSecretKey,
-    issuer: 'sub-games-companion.com',
-    audience: 'sub-games-companion.com'
+    issuer: 'https://sub-games.com',
+    audience: 'https://sub-games.com'
   }, (payload, done) => {
     const { id: userId } = fromGlobalId(payload.sub)
     userRepository.find(userId)
@@ -112,7 +112,7 @@ export default function getPassport (db: Knex, config: Configuration, userReposi
     // https://dev.twitch.tv/docs/authentication#scopes
     scope: ['moderation:read', 'channel:read:subscriptions', 'openid', 'user:read:follows'],
     state: true,
-    store: StateStore(db)
+    store: StateStore(db, config)
   }, (accessToken: string, refreshToken: string, profile: {}, cb: Function) => {
     const userClaims = JSON.stringify({ id_token: { preferred_username: null } })
     fetch(`https://id.twitch.tv/oauth2/userinfo?claims=${userClaims}`, {

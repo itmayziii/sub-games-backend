@@ -11,7 +11,7 @@ const loginHandler: RequestHandler = function loginHandler (request, response, n
     if (error !== null) return next(error)
 
     const redirectURLQueryParam = request.query.redirect_url
-    let redirectURL = 'http://localhost:3000/sessions'
+    let redirectURL = `${config.webAppURL}/sessions`
     if (typeof redirectURLQueryParam === 'string') {
       redirectURL = redirectURLQueryParam
     }

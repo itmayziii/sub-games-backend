@@ -10,4 +10,5 @@ export default interface Configuration {
   dbPassword: string
   dbDatabase: string
   logLevel: keyof Logger
+  webAppURL: string
 }

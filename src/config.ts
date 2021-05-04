@@ -10,7 +10,8 @@ export default function Config (): Configuration {
     process.env.SGC_TWITCH_CALLBACK_URL === undefined ||
     process.env.SGC_DB_HOST === undefined ||
     process.env.SGC_DB_PASSWORD === undefined ||
-    (process.env.SGC_LOG_LEVEL !== undefined && !['critical', 'error', 'info', 'debug'].includes(process.env.SGC_LOG_LEVEL))
+    (process.env.SGC_LOG_LEVEL !== undefined && !['critical', 'error', 'info', 'debug'].includes(process.env.SGC_LOG_LEVEL)) ||
+    process.env.SGC_WEB_APP_URL === undefined
   ) {
     throw new Error('invalid config values')
   }
@@ -24,7 +25,8 @@ export default function Config (): Configuration {
     dbUser: 'subGamesCompanionApp',
     dbPassword: process.env.SGC_DB_PASSWORD,
     dbDatabase: 'subGamesCompanion',
-    logLevel: process.env.SGC_LOG_LEVEL as keyof Logger ?? 'info'
+    logLevel: process.env.SGC_LOG_LEVEL as keyof Logger ?? 'info',
+    webAppURL: process.env.SGC_WEB_APP_URL
   }
   return config
 }

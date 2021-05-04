@@ -22,7 +22,7 @@ const twitchCallbackHandler: RequestHandler = (request, response) => {
 
       const stateQuery = request.query.state
       if (typeof stateQuery !== 'string') {
-        return response.redirect('http://localhost:3000/sessions')
+        return response.redirect(`${config.webAppURL}/sessions`)
       }
       const { id: redirectURL } = fromGlobalId(stateQuery)
       response.redirect(redirectURL)
