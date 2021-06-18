@@ -1,7 +1,0 @@
-input RefreshTokenInput {
-  refreshToken: ID
-}
-
-type RefreshTokenPayload {
-  success: Boolean!
-}

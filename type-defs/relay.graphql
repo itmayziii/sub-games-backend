@@ -1,5 +1,0 @@
-interface Node {
-  # https://relay.dev/docs/guides/graphql-server-specification/
-  # https://relay.dev/graphql/objectidentification.htm#sec-Node-Interface
-  id: ID!
-}

@@ -1,0 +1,20 @@
+directive @complexity(value: Int!, multipliers: [String!]) on FIELD_DEFINITION
+
+directive @constraint(
+  # Strings
+  minLength: Int
+  maxLength: Int
+  startsWith: String
+  endsWith: String
+  contains: String
+  notContains: String
+  pattern: String
+  format: String
+
+  # Integers / Floats
+  min: Int
+  max: Int
+  exclusiveMin: Int
+  exclusiveMax: Int
+  multipleOf: Int
+) on INPUT_FIELD_DEFINITION

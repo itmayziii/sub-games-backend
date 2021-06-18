@@ -1,0 +1,21 @@
+interface UserInterface implements Node {
+  id: ID!
+  username: String!
+}
+
+interface PlayerInterface implements UserInterface & Node {
+  id: ID!
+  username: String!
+  playCount: Int!
+  allTimePlayCount: Int!
+}
+
+interface Node {
+  # https://relay.dev/docs/guides/graphql-server-specification/
+  # https://relay.dev/graphql/objectidentification.htm#sec-Node-Interface
+  id: ID!
+}
+
+interface Payload {
+  complexity: Int!
+}

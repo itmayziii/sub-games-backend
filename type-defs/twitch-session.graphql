@@ -1,6 +1,0 @@
-type TwitchSession {
-  user: User!
-  gameName: String!
-  viewerCount: Int!
-  thumbnailURL: String!
-}

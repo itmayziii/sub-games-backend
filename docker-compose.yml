@@ -1,14 +1,39 @@
 version: "3.8"
 services:
-  backend:
+  # In production we have a GCP load balancer, but locally this is the closest we have to simulating an SSL terminating
+  # proxy sitting in front of our backend services.
+  proxy:
+    image: nginx:1.18-alpine
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - api
+      - listener
+    volumes:
+      - ./docker-config/local/certs:/certs
+      - ./docker-config/local/nginx-default.conf:/etc/nginx/conf.d/default.conf
+
+  api:
     image: node:14
     ports:
-      - "4000:4000"
+      - 4000:4000
     depends_on:
       - database
     volumes:
       - ./:/home/node/app
-    command: "npm run start:server"
+    command: "npm run start:api"
+    working_dir: "/home/node/app"
+
+  listener:
+    image: node:14
+    ports:
+      - 4100:4100
+    depends_on:
+      - database
+    volumes:
+      - ./:/home/node/app
+    command: "npm run start:listener"
     working_dir: "/home/node/app"
 
   database:

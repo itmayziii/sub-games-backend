@@ -1,0 +1,15 @@
+type SessionEdge {
+  node: Session!
+  """
+  This cursor is not spec compliant - https://relay.dev/graphql/ircClients.htm#sec-Cursor. Instead this cursor will be
+  the same for every edge and can be used to retrieve the next set of results. This difference from the spec is due to
+  the limitations of the Twitch API.
+  """
+  cursor: String
+}
+
+type SessionsConnection implements Payload {
+  complexity: Int!
+  edges: [SessionEdge!]! # No complexity directive here as many sessions will not require multiple calls to the twitch API.
+  pageInfo: PageInfo!
+}

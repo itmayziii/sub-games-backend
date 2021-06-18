@@ -1,0 +1,34 @@
+type RefreshTokenPayload implements Payload {
+  complexity: Int!
+  success: Boolean!
+}
+
+type StartSubGameSessionPayload implements Payload {
+  complexity: Int!
+  subGameSession: SubGameSession!
+}
+
+type ActiveSubGameSessionByUsernamePayload implements Payload {
+  complexity: Int!
+  subGameSession: SubGameSession
+}
+
+type SubGameSessionByIdPayload implements Payload {
+  complexity: Int!
+  subGameSession: SubGameSession
+}
+
+type ActiveSubGameSessionByUserIdPayload implements Payload {
+  complexity: Int!
+  subGameSession: SubGameSession
+}
+
+type JoinSubGameSessionQueuePayload implements Payload {
+  complexity: Int!
+  subGameSession: SubGameSession!
+}
+
+type MovePlayerQueueOrderPayload implements Payload {
+  complexity: Int!
+  subGameSession: SubGameSession!
+}

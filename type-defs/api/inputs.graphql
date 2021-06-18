@@ -1,0 +1,49 @@
+input JoinSubGameSessionQueueInput {
+  userId: ID!
+  subGameSessionId: ID!
+}
+
+input ActiveSubGameSessionByUserIdInput {
+  userId: ID!
+}
+
+input SubGameSessionByIdInput {
+  id: ID!
+}
+
+input StartSubGameSessionInput {
+  ownerId: ID!
+  userMustVerifyEpic: Boolean
+  maxPlayCount: Int @constraint(min: 0, max: 1000)
+  maxActivePlayers: Int @constraint(min: 0, max: 1000)
+  isSubOnly: Boolean
+}
+
+input ActiveSubGameSessionByUsernameInput {
+  """This "username" input is case sensitive and refers to a users Twitch "dipslay_name" not their "login" name. https://dev.twitch.tv/docs/api/reference#get-users"""
+  username: ID!
+}
+
+input MovePlayerQueueOrderInput {
+  userId: ID!
+  order: Int! @constraint(max: 5000)
+  subGameSessionId: ID!
+}
+
+input RefreshTokenInput {
+  refreshToken: String @constraint(maxLength: 255)
+}
+
+# https://relay.dev/graphql/connections.htm#sec-Arguments
+input SessionsByUserIdInput {
+  userId: ID!
+
+  # https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+  first: Int @constraint(min: 0)
+  after: String
+
+  # https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+  # Twitch API does not allow for backward pagination so neither do we for this connection.
+  # last: Int
+  # before: String
+}
